@@ -22,6 +22,8 @@ import numpy as np
 import functools
 import importlib
 import os
+import shutil
+import tempfile
 import unittest
 from yt.funcs import iterable
 from yt.config import ytcfg
@@ -39,6 +41,7 @@ from yt.convenience import load
 from yt.units.yt_array import YTArray, YTQuantity
 from yt.utilities.exceptions import YTUnitOperationError
 
+ANSWER_TEST_TAG = "answer_test"
 # Expose assert_true and assert_less_equal from unittest.TestCase
 # this is adopted from nose. Doing this here allows us to avoid importing
 # nose at the top level.
@@ -286,7 +289,7 @@ def fake_particle_ds(
             offsets.append(0.5)
         else:
             offsets.append(0.0)
-    data = {}
+    data = data if data else {}
     for field, offset, u in zip(fields, offsets, units):
         if field in data:
             v = data[field]
@@ -1142,3 +1145,18 @@ def requires_backend(backend):
     if backend.lower() == matplotlib.get_backend().lower():
         return ftrue
     return ffalse
+
+class TempDirTest(unittest.TestCase):
+    """
+    A test class that runs in a temporary directory and
+    removes it afterward.
+    """
+
+    def setUp(self):
+        self.curdir = os.getcwd()
+        self.tmpdir = tempfile.mkdtemp()
+        os.chdir(self.tmpdir)
+
+    def tearDown(self):
+        os.chdir(self.curdir)
+        shutil.rmtree(self.tmpdir)
