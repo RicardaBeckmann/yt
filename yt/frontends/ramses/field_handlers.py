@@ -413,6 +413,65 @@ class GravFieldFileHandler(FieldFileHandler):
 
         return fields
 
+class ClumpFieldFileHandler(FieldFileHandler):
+    ftype = 'clump'
+    fname = 'clump_{iout:05d}.out{icpu:05d}'
+    file_descriptor = 'clump_file_descriptor.txt'
+    config_field = 'ramses-clump'
+
+    attrs = ( ('ncpu', 1, 'i'),
+              ('nvar', 1, 'i'),
+              ('ndim', 1, 'i'),
+              ('nlevelmax', 1, 'i'),
+              ('nboundary', 1, 'i'),
+              ('gamma', 1, 'd'))
+
+    @classmethod
+    def detect_fields(cls, ds):
+        # Try to get the detected fields
+        detected_fields = cls.get_detected_fields(ds)
+        if detected_fields:
+            return detected_fields
+
+        num = os.path.basename(ds.parameter_filename).split("."
+                )[0].split("_")[1]
+        testdomain = 1 # Just pick the first domain file to read
+        basepath = os.path.abspath(
+              os.path.dirname(ds.parameter_filename))
+        basename = "%s/%%s_%s.out%05i" % (
+            basepath, num, testdomain)
+        fname = basename % 'clump'
+        fname_desc = os.path.join(basepath, cls.file_descriptor)
+
+        attrs = cls.attrs
+        with FortranFile(fname) as fd:
+            hvals = fd.read_attrs(attrs)
+        cls.parameters = hvals
+
+        # Store some metadata
+        ds.gamma = hvals['gamma']
+        nvar = hvals['nvar']
+
+        ok = False
+        # Or there is an hydro file descriptor
+        mylog.debug('Reading clump file descriptor.')
+        # For now, we can only read double precision fields
+        fields = [e[0] for e in _read_fluid_file_descriptor(fname_desc)]
+
+        # We get no fields for old-style hydro file descriptor
+        ok = len(fields) > 0
+
+        # Allow some wiggle room for users to add too many variables
+        count_extra = 0
+        while len(fields) < nvar:
+            fields.append("var"+str(len(fields)))
+            count_extra += 1
+        if count_extra > 0:
+            mylog.debug('Detected %s extra clump fields.' % count_extra)
+        cls.field_list = [(cls.ftype, e) for e in fields]
+        cls.set_detected_fields(ds, fields)
+        return fields
+
 
 class RTFieldFileHandler(FieldFileHandler):
     ftype = 'ramses-rt'
