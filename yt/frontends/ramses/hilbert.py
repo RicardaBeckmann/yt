@@ -142,7 +142,7 @@ def get_cpu_list(ds, X):
         kmax = kmin + 1
 
 
-    dkey = (2**(levelmax+1) / maxdom)**ndim
+    dkey = (2.**(levelmax+1) / maxdom)**ndim
     ndom = 1
     if (bit_length > 0): ndom = 8
 
