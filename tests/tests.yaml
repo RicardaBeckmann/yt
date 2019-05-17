@@ -47,7 +47,7 @@ answer_tests:
   local_owls_002:
     - yt/frontends/owls/tests/test_outputs.py
 
-  local_pw_025:
+  local_pw_026:
     - yt/visualization/tests/test_plotwindow.py:test_attributes
     - yt/visualization/tests/test_plotwindow.py:test_attributes_wt
     - yt/visualization/tests/test_particle_plot.py:test_particle_projection_answers
@@ -109,8 +109,9 @@ answer_tests:
   local_ramses_001:
     - yt/frontends/ramses/tests/test_outputs.py
 
-  local_ytdata_004:
-    - yt/frontends/ytdata
+  local_ytdata_006:
+    - yt/frontends/ytdata/tests/test_outputs.py
+    - yt/frontends/ytdata/tests/test_old_outputs.py
 
   local_absorption_spectrum_007:
     - yt/analysis_modules/absorption_spectrum/tests/test_absorption_spectrum.py:test_absorption_spectrum_non_cosmo
@@ -120,7 +121,7 @@ answer_tests:
     - yt/analysis_modules/absorption_spectrum/tests/test_absorption_spectrum.py:test_absorption_spectrum_cosmo_sph
     - yt/analysis_modules/absorption_spectrum/tests/test_absorption_spectrum.py:test_absorption_spectrum_with_continuum
 
-  local_axialpix_005:
+  local_axialpix_006:
     - yt/geometry/coordinates/tests/test_axial_pixelization.py:test_axial_pixelization
 
   local_particle_trajectory_001:
