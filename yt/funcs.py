@@ -649,7 +649,10 @@ def get_yt_version():
     if version is None:
         return version
     else:
-        return version[:12].strip().decode('utf-8')
+        v_str = version[:12].strip()
+        if hasattr(v_str, 'decode'):
+            v_str = v_str.decode('utf-8')
+        return v_str
 
 def get_version_stack():
     version_info = {}
@@ -997,15 +1000,14 @@ def enable_plugins():
         ytdict = yt.__dict__
         execdict = ytdict.copy()
         execdict['add_field'] = my_plugins_fields.add_field
-        localdict = {}
         with open(_fn) as f:
             code = compile(f.read(), _fn, 'exec')
-            exec(code, execdict, localdict)
+            exec(code, execdict, execdict)
         ytnamespace = list(ytdict.keys())
-        for k in localdict.keys():
+        for k in execdict.keys():
             if k not in ytnamespace:
-                if callable(localdict[k]):
-                    setattr(yt, k, localdict[k])
+                if callable(execdict[k]):
+                    setattr(yt, k, execdict[k])
 
 def fix_unitary(u):
     if u == '1':
