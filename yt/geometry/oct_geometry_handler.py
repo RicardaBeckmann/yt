@@ -32,7 +32,7 @@ class OctreeIndex(Index):
         Returns (in code units) the smallest cell size in the simulation.
         """
         return (self.dataset.domain_width /
-                (self.dataset.domain_dimensions * 2**(self.max_level))).min()
+                (self.dataset.domain_dimensions * 2.0**(self.max_level))).min()
 
     def convert(self, unit):
         return self.dataset.conversion_factors[unit]

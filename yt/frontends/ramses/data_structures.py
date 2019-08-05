@@ -313,7 +313,7 @@ class RAMSESIndex(OctreeIndex):
         self.level_stats['level'] = [i for i in range(max_level)]
         self.level_stats['numcells'] = [0 for i in range(max_level)]
         for level in range(self.dataset.min_level+1):
-            self.level_stats[level+1]['numcells']=2**(level*self.dataset.dimensionality)
+            self.level_stats[level+1]['numcells']=2.**(level*self.dataset.dimensionality)
         for level in range(self.max_level+1):
             self.level_stats[level+self.dataset.min_level+1]['numcells'] = levels[level]
 
