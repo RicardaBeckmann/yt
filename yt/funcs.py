@@ -649,7 +649,10 @@ def get_yt_version():
     if version is None:
         return version
     else:
-        return version[:12].strip().decode('utf-8')
+        v_str = version[:12].strip()
+        if hasattr(v_str, 'decode'):
+            v_str = v_str.decode('utf-8')
+        return v_str
 
 def get_version_stack():
     version_info = {}
@@ -988,7 +991,7 @@ def enable_plugins():
 
     if _fn is not None and os.path.isfile(_fn):
         if _fn.startswith(old_config_dir):
-            mylog.warn(
+            mylog.warning(
                 'Your plugin file is located in a deprecated directory. '
                 'Please move it from %s to %s',
                 os.path.join(old_config_dir, my_plugin_name),

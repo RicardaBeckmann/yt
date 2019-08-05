@@ -809,7 +809,7 @@ class PWViewerMPL(PlotWindow):
             return (self.ds.quan(0.0, 'code_length'),
                     self.ds.quan(0.0, 'code_length'))
         else:
-            mylog.warn("origin = {0}".format(origin))
+            mylog.warning("origin = {0}".format(origin))
             msg = \
                   ('origin keyword "{0}" not recognized, must declare "domain" '
                    'or "center" as the last term in origin.').format(self.origin)
@@ -822,7 +822,7 @@ class PWViewerMPL(PlotWindow):
             elif origin[0] == 'center':
                 yc = (yllim + yrlim)/2.0
             else:
-                mylog.warn("origin = {0}".format(origin))
+                mylog.warning("origin = {0}".format(origin))
                 msg = ('origin keyword "{0}" not recognized, must declare "lower" '
                        '"upper" or "center" as the first term in origin.')
                 msg = msg.format(self.origin)
@@ -835,7 +835,7 @@ class PWViewerMPL(PlotWindow):
             elif origin[1] == 'center':
                 xc = (xllim + xrlim)/2.0
             else:
-                mylog.warn("origin = {0}".format(origin))
+                mylog.warning("origin = {0}".format(origin))
                 msg = ('origin keyword "{0}" not recognized, must declare "left" '
                        '"right" or "center" as the second term in origin.')
                 msg = msg.format(self.origin)
@@ -1129,134 +1129,7 @@ class PWViewerMPL(PlotWindow):
                 if key not in keys:
                     del self.frb[key]
 
-    def hide_colorbar(self, field=None):
-        """
-        Hides the colorbar for a plot and updates the size of the
-        plot accordingly.  Defaults to operating on all fields for a
-        PlotWindow object.
 
-        Parameters
-        ----------
-
-        field : string, field tuple, or list of strings or field tuples (optional)
-            The name of the field(s) that we want to hide the colorbar. If None
-            is provided, will default to using all fields available for this
-            object.
-
-        Examples
-        --------
-
-        This will save an image with no colorbar.
-
-        >>> import yt
-        >>> ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-        >>> s = SlicePlot(ds, 2, 'density', 'c', (20, 'kpc'))
-        >>> s.hide_colorbar()
-        >>> s.save()
-
-        This will save an image with no axis or colorbar.
-
-        >>> import yt
-        >>> ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-        >>> s = SlicePlot(ds, 2, 'density', 'c', (20, 'kpc'))
-        >>> s.hide_axes()
-        >>> s.hide_colorbar()
-        >>> s.save()
-        """
-        if field is None:
-            field = self.fields
-        field = ensure_list(field)
-        for f in field:
-            self.plots[f].hide_colorbar()
-        return self
-
-    def show_colorbar(self, field=None):
-        """
-        Shows the colorbar for a plot and updates the size of the
-        plot accordingly.  Defaults to operating on all fields for a
-        PlotWindow object.  See hide_colorbar().
-
-        Parameters
-        ----------
-
-        field : string, field tuple, or list of strings or field tuples (optional)
-            The name of the field(s) that we want to show the colorbar.
-        """
-        if field is None:
-            field = self.fields
-        field = ensure_list(field)
-        for f in field:
-            self.plots[f].show_colorbar()
-        return self
-
-    def hide_axes(self, field=None, draw_frame=False):
-        """
-        Hides the axes for a plot and updates the size of the
-        plot accordingly.  Defaults to operating on all fields for a
-        PlotWindow object.
-
-        Parameters
-        ----------
-
-        field : string, field tuple, or list of strings or field tuples (optional)
-            The name of the field(s) that we want to hide the axes.
-
-        draw_frame : boolean
-            If True, the axes frame will still be drawn. Defaults to False.
-            See note below for more details.
-
-        Examples
-        --------
-
-        This will save an image with no axes.
-
-        >>> import yt
-        >>> ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-        >>> s = SlicePlot(ds, 2, 'density', 'c', (20, 'kpc'))
-        >>> s.hide_axes()
-        >>> s.save()
-
-        This will save an image with no axis or colorbar.
-
-        >>> import yt
-        >>> ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-        >>> s = SlicePlot(ds, 2, 'density', 'c', (20, 'kpc'))
-        >>> s.hide_axes()
-        >>> s.hide_colorbar()
-        >>> s.save()
-
-        Note
-        ----
-        By default, when removing the axes, the patch on which the axes are
-        drawn is disabled, making it impossible to later change e.g. the
-        background colour. To force the axes patch to be displayed while still
-        hiding the axes, set the ``draw_frame`` keyword argument to ``True``.
-        """
-        if field is None:
-            field = self.fields
-        field = ensure_list(field)
-        for f in field:
-            self.plots[f].hide_axes(draw_frame)
-        return self
-
-    def show_axes(self, field=None):
-        """
-        Shows the axes for a plot and updates the size of the
-        plot accordingly.  Defaults to operating on all fields for a
-        PlotWindow object.  See hide_axes().
-
-        Parameters
-        ----------
-
-        field : string, field tuple, or list of strings or field tuples (optional)
-            The name of the field(s) that we want to show the axes.
-        """
-        if field is None:
-            field = self.fields
-        field = ensure_list(field)
-        for f in field:
-            self.plots[f].show_axes()
-        return self
 
 class AxisAlignedSlicePlot(PWViewerMPL):
     r"""Creates a slice plot from a dataset
@@ -1701,7 +1574,7 @@ class OffAxisProjectionDummyDataSource(object):
     _type_name = 'proj'
     _key_fields = []
     def __init__(self, center, ds, normal_vector, width, fields,
-                 interpolated, resolution = (800,800), weight=None,
+                 interpolated, weight=None,
                  volume=None, no_ghost=False, le=None, re=None,
                  north_vector=None, method="integrate",
                  data_source=None):
@@ -1717,7 +1590,6 @@ class OffAxisProjectionDummyDataSource(object):
         fields = self.dd._determine_fields(fields)
         self.fields = fields
         self.interpolated = interpolated
-        self.resolution = resolution
         if weight is not None:
             weight = self.dd._determine_fields(weight)[0]
         self.weight_field = weight
@@ -1839,7 +1711,7 @@ class OffAxisProjectionPlot(PWViewerMPL):
                             bounds[5] - bounds[4]))
         OffAxisProj = OffAxisProjectionDummyDataSource(
             center_rot, ds, normal, oap_width, fields, interpolated,
-            weight=weight_field,  volume=volume, no_ghost=no_ghost,
+            weight=weight_field, volume=volume, no_ghost=no_ghost,
             le=le, re=re, north_vector=north_vector, method=method,
             data_source=data_source)
 
@@ -1863,8 +1735,6 @@ class OffAxisProjectionPlot(PWViewerMPL):
             axes_unit = get_axes_unit(width, ds)
         self.set_axes_unit(axes_unit)
 
-    def _recreate_frb(self):
-        super(OffAxisProjectionPlot, self)._recreate_frb()
 
 class WindowPlotMPL(ImagePlotMPL):
     """A container for a single PlotWindow matplotlib figure and axes"""
@@ -2079,7 +1949,7 @@ def SlicePlot(ds, normal=None, fields=None, axis=None, *args, **kwargs):
         if 'origin' in kwargs:
             msg = "Ignoring 'origin' keyword as it is ill-defined for " \
                   "an OffAxisSlicePlot object."
-            mylog.warn(msg)
+            mylog.warning(msg)
             del kwargs['origin']
 
         return OffAxisSlicePlot(ds, normal, fields, *args, **kwargs)
@@ -2088,7 +1958,7 @@ def SlicePlot(ds, normal=None, fields=None, axis=None, *args, **kwargs):
         if 'north_vector' in kwargs:
             msg = "Ignoring 'north_vector' keyword as it is ill-defined for " \
                   "an AxisAlignedSlicePlot object."
-            mylog.warn(msg)
+            mylog.warning(msg)
             del kwargs['north_vector']
 
         return AxisAlignedSlicePlot(ds, normal, fields, *args, **kwargs)

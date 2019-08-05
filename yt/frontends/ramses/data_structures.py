@@ -22,6 +22,8 @@ import weakref
 from collections import defaultdict
 from glob import glob
 
+from astropy.cosmology import FlatLambdaCDM
+
 from yt.extern.six import string_types
 from yt.funcs import \
     mylog, \
@@ -47,6 +49,7 @@ from yt.utilities.cython_fortran_utils import FortranFile as fpu
 from yt.geometry.oct_container import \
     RAMSESOctreeContainer
 from yt.arraytypes import blankRecordArray
+from yt.units.yt_array import YTQuantity, YTArray
 
 from yt.utilities.lib.cosmology_time import \
     friedman
@@ -530,7 +533,7 @@ class RAMSESDataset(Dataset):
                     dom, mi, ma = f.readline().split()
                     self.hilbert_indices[int(dom)] = (float(mi), float(ma))
 
-        if rheader['ordering type'] != 'hilbert' and self.bbox:
+        if rheader['ordering type'] != 'hilbert' and self._bbox is not None:
             raise NotImplementedError(
                 'The ordering %s is not compatible with the `bbox` argument.'
                 % rheader['ordering type'])
@@ -567,9 +570,11 @@ class RAMSESDataset(Dataset):
         if self.cosmological_simulation == 0:
             self.current_time = self.parameters['time']
         else :
+            self.cosmology=FlatLambdaCDM(H0=100*self.hubble_constant,Om0=self.omega_matter)
+
+            '''
             self.tau_frw, self.t_frw, self.dtau, self.n_frw, self.time_tot = \
                 friedman( self.omega_matter, self.omega_lambda, 1. - self.omega_matter - self.omega_lambda )
-
             age = self.parameters['time']
             iage = 1 + int(10.*age/self.dtau)
             iage = np.min([iage,self.n_frw//2 + (iage - self.n_frw//2)//10])
@@ -578,6 +583,8 @@ class RAMSESDataset(Dataset):
                              self.t_frw[iage-1]*(age-self.tau_frw[iage  ])/(self.tau_frw[iage-1]-self.tau_frw[iage])
 
             self.current_time = (self.time_tot + self.time_simu)/(self.hubble_constant*1e7/3.08e24)/self.parameters['unit_t']
+            '''
+            self.current_time=YTQuantity.from_astropy(self.cosmology.age(self.current_redshift))
 
         if self.num_groups > 0:
             self.group_size = rheader['ncpu'] // self.num_groups
