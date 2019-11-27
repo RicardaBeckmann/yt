@@ -240,8 +240,8 @@ cdef class FortranFile:
                 tmp = self.read_vector(dtype)
                 if len(tmp) == 0 and optional:
                     continue
-                elif len(tmp) != n:
-                    raise ValueError("Expected a record of length %s, got %s" % (n, len(tmp)))
+                #elif len(tmp) != n:
+                #    raise ValueError("Expected a record of length %s, got %s" % (n, len(tmp)))
 
                 if isinstance(key, tuple):
                     # There are multiple keys
