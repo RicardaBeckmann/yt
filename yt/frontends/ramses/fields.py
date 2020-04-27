@@ -195,6 +195,8 @@ class RAMSESFieldInfo(FieldInfoContainer):
                 return data['gas','pressure_electron']+data['gas','pressure_ion']
             self.add_field(('gas','pressure'), sampling_type="cell", function=_total_thermal_pressure,
                            units=self.ds.unit_system["pressure"])
+        else:
+            twotemp=False
 
         # Add temperatures for all thermal and non-thermal pressures. Need to find the associated weights
         def _temperature(field, data):
