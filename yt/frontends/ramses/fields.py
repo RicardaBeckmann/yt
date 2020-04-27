@@ -114,6 +114,7 @@ class RAMSESFieldInfo(FieldInfoContainer):
         ("B_z_right", (b_units, ['magnetic_field_z_right'],None)),
         ("Pressure_electron", (pressure_units, ['pressure_electron'],None)),
         ("Pressure_ion", (pressure_units, ['pressure_ion'],None)),
+        ("Pressure_cosmic_ray", (pressure_units, ['pressure_cosmic_ray'],None)),
     )
     known_particle_fields = (
         ("particle_position_x", ("code_length", [], None)),

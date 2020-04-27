@@ -314,6 +314,10 @@ def _read_fluid_file_descriptor(fname):
 
                 if varname in mapping:
                     varname = mapping[varname]
+                elif varname[:10]=='cosmic_ray':
+                    #Careful, only loads the LAST cosmic ray pressure field. 
+                    #Does not work if there is more than one
+                    varname='Pressure_cosmic_ray'
                 else:
                     varname = 'hydro_%s' % varname
 
@@ -321,5 +325,6 @@ def _read_fluid_file_descriptor(fname):
         else:
             mylog.error('Version %s', version)
             raise YTParticleOutputFormatNotImplemented()
+        print(fields)
 
     return fields
