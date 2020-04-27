@@ -112,6 +112,8 @@ class RAMSESFieldInfo(FieldInfoContainer):
         ("B_y_right", (b_units, ['magnetic_field_y_right'],None)),
         ("B_z_left", (b_units, ['magnetic_field_z_left'],None)),
         ("B_z_right", (b_units, ['magnetic_field_z_right'],None)),
+        ("Pressure_electron", (pressure_units, ['pressure_electron'],None)),
+        ("Pressure_ion", (pressure_units, ['pressure_ion'],None)),
     )
     known_particle_fields = (
         ("particle_position_x", ("code_length", [], None)),
@@ -185,10 +187,20 @@ class RAMSESFieldInfo(FieldInfoContainer):
                        function=star_age, units=self.ds.unit_system['time'])
 
     def setup_fluid_fields(self):
+        if ('gas','pressure_electron') in self:
+            # Add total thermal pressure for two-temperature runs
+            def _total_thermal_pressure(field,data):
+                return data['gas','pressure_electron']+data['gas','pressure_ion']
+            self.add_field(('gas','pressure'), sampling_type="cell", function=_total_thermal_pressure,
+                           units=self.ds.unit_system["pressure"])
+
+
+        # Add temperatures for all thermal and non-thermal pressures. Need to find the associated weights
         def _temperature(field, data):
             rv = data["gas", "pressure"]/data["gas", "density"]
             rv *= mass_hydrogen_cgs/boltzmann_constant_cgs
             return rv
+
         self.add_field(("gas", "temperature"), sampling_type="cell",  function=_temperature,
                         units=self.ds.unit_system["temperature"])
         self.create_cooling_fields()

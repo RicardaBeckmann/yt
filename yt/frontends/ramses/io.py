@@ -277,6 +277,8 @@ def _read_fluid_file_descriptor(fname):
         ('velocity_z', 'z-velocity'),
         ('pressure', 'Pressure'),
         ('metallicity', 'Metallicity'),
+        ('pressure_electron','Pressure_electron'),
+        ('pressure_ion','Pressure_ion')
     ]
 
     # Add mapping for magnetic fields
