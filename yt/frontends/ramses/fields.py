@@ -86,9 +86,9 @@ _cool_species = ("Electron_number_density",
                  "HeII_number_density",
                  "HeIII_number_density")
 
-_X = 0.76 # H fraction, hardcoded
-_Y = 0.24 # He fraction, hardcoded
-
+#_X = 0.76 # H fraction, hardcoded
+mu = {'ion': 1/1.2195118,     #originally 0.76
+      'electron':1/1.1363636}
 
 class RAMSESFieldInfo(FieldInfoContainer):
     known_other_fields = (
@@ -188,17 +188,18 @@ class RAMSESFieldInfo(FieldInfoContainer):
 
     def setup_fluid_fields(self):
         if ('gas','pressure_electron') in self:
+            twotemp=True
             # Add total thermal pressure for two-temperature runs
             def _total_thermal_pressure(field,data):
                 return data['gas','pressure_electron']+data['gas','pressure_ion']
             self.add_field(('gas','pressure'), sampling_type="cell", function=_total_thermal_pressure,
                            units=self.ds.unit_system["pressure"])
 
-
         # Add temperatures for all thermal and non-thermal pressures. Need to find the associated weights
         def _temperature(field, data):
+            #This is now T, no longer T/mu!!
             rv = data["gas", "pressure"]/data["gas", "density"]
-            rv *= mass_hydrogen_cgs/boltzmann_constant_cgs
+            rv *= mass_hydrogen_cgs/boltzmann_constant_cgs/(mu['ion']+mu['electron'])
             return rv
 
         self.add_field(("gas", "temperature"), sampling_type="cell",  function=_temperature,
@@ -213,6 +214,27 @@ class RAMSESFieldInfo(FieldInfoContainer):
         #Load magnetic fields
         if ('gas','magnetic_field_x_left') in self:
             self.create_magnetic_fields()
+
+        #Add ion and electron temperature and number density fields
+        if twotemp:
+            def _n_comp(comp):
+                def _number_density_comp(field,data):
+                    return data[('gas','density')]/mp/mu[comp]
+
+                return  _number_density_comp
+
+            def _T_comp(comp):
+                def _temperature_comp(field,data):
+                    rv = data["gas", "pressure_%s" % comp]/data["gas", "density"]
+                    rv *= mass_hydrogen_cgs/boltzmann_constant_cgs/mu[comp]
+                    return rv
+                return _temperature_comp
+
+            for component in ['ion','electron']:
+                self.add_field(("gas", "number_density_%s" % component), sampling_type="cell",  function=_n_comp(component),
+                               units=self.ds.unit_system["number_density"])
+                self.add_field(("gas", "temperature_%s" % component), sampling_type="cell",  function=_T_comp(component),
+                           units=self.ds.unit_system["temperature"])
 
     def create_magnetic_fields(self):
         #Calculate cell-centred magnetic fields from face-centred
@@ -231,7 +253,7 @@ class RAMSESFieldInfo(FieldInfoContainer):
             '''Calculate magnetic field divergence'''
             out = np.zeros_like(data['magnetic_field_x_right'])
             for ax in data.ds.coordinates.axis_order:
-                out += data['magnetic_field_%s_right' % ax] - data['magnetic_field_%s_left' % ax] 
+                out += data['magnetic_field_%s_right' % ax] - data['magnetic_field_%s_left' % ax]
             return out/data['dx']
 
         self.add_field(('gas','magnetic_field_divergence'),
@@ -312,7 +334,7 @@ class RAMSESFieldInfo(FieldInfoContainer):
         def _create_field(name, interp_object,unit):
             def _func(field, data):
                 shape = data["temperature"].shape
-                d = {'lognH': np.log10(_X*data["density"]/mh).ravel(),
+                d = {'lognH': np.log10(mu['ion']*data["density"]/mh).ravel(),
                      'logT' : np.log10(data["temperature"]).ravel()}
                 rv = interp_object(d).reshape(shape)
                 if name[-1] != 'mu':

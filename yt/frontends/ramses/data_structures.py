@@ -42,7 +42,7 @@ from yt.utilities.physical_constants import mp, kb
 from yt.utilities.on_demand_imports import _f90nml as f90nml
 from .definitions import ramses_header, field_aliases, particle_families
 from .fields import \
-    RAMSESFieldInfo, _X
+    RAMSESFieldInfo, mu
 from .hilbert import get_cpu_list
 from .particle_handlers import get_particle_handlers
 from .field_handlers import get_field_handlers
@@ -473,7 +473,7 @@ class RAMSESDataset(Dataset):
         # TODO:
         # Generalize the temperature field to account for ionization
         # For now assume an atomic ideal gas with cosmic abundances (x_H = 0.76)
-        mean_molecular_weight_factor = _X**-1
+        mean_molecular_weight_factor = mu['ion']**-1
 
         setdefaultattr(self, 'density_unit', self.quan(density_unit, 'g/cm**3'))
         setdefaultattr(self, 'magnetic_unit', self.quan(magnetic_unit, "gauss"))
