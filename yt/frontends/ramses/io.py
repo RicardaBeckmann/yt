@@ -325,6 +325,5 @@ def _read_fluid_file_descriptor(fname):
         else:
             mylog.error('Version %s', version)
             raise YTParticleOutputFormatNotImplemented()
-        print(fields)
 
     return fields
