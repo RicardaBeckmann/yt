@@ -112,9 +112,9 @@ class RAMSESFieldInfo(FieldInfoContainer):
         ("B_y_right", (b_units, ['magnetic_field_y_right'],None)),
         ("B_z_left", (b_units, ['magnetic_field_z_left'],None)),
         ("B_z_right", (b_units, ['magnetic_field_z_right'],None)),
-        ("Pressure_electron", (pressure_units, ['pressure_electron'],None)),
-        ("Pressure_ion", (pressure_units, ['pressure_ion'],None)),
-        ("Pressure_cosmic_ray", (pressure_units, ['pressure_cosmic_ray'],None)),
+        ("Pressure_electron", (pressure_units, ['pressure_electron'],'P_e')),
+        ("Pressure_ion", (pressure_units, ['pressure_ion'],'P_{ion}')),
+        ("Pressure_cosmic_ray", (pressure_units, ['pressure_cosmic_ray'],'P_{CR}')),
     )
     known_particle_fields = (
         ("particle_position_x", ("code_length", [], None)),
@@ -235,9 +235,9 @@ class RAMSESFieldInfo(FieldInfoContainer):
 
             for component in ['ion','electron']:
                 self.add_field(("gas", "number_density_%s" % component), sampling_type="cell",  function=_n_comp(component),
-                               units=self.ds.unit_system["number_density"])
+                               units=self.ds.unit_system["number_density"],display_name=r'n_{%s}' % component)
                 self.add_field(("gas", "temperature_%s" % component), sampling_type="cell",  function=_T_comp(component),
-                           units=self.ds.unit_system["temperature"])
+                           units=self.ds.unit_system["temperature"],display_name=r'T_{%s}' % component)
 
     def create_magnetic_fields(self):
         #Calculate cell-centred magnetic fields from face-centred
