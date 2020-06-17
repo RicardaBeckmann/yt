@@ -233,11 +233,30 @@ class RAMSESFieldInfo(FieldInfoContainer):
                     return rv
                 return _temperature_comp
 
+            def _ratio_T_comp(comp):
+                def _ratio_temperature_comp(field,data):
+                    return data['gas','temperature_%s' % comp]/data["gas","temperature"]
+                return _ratio_temperature_comp
+
+            def _ratio_P_comp(comp):
+                def _ratio_pressure_comp(field,data):
+                    return data['gas','pressure_%s' % comp]/data["gas","temperature"]
+                return _ratio_pressure_comp
+
+            def _ratio_te_ti(field,data):
+                return data[('gas','temperature_electron')]/data[("gas","temperature_ion")]
+
             for component in ['ion','electron']:
                 self.add_field(("gas", "number_density_%s" % component), sampling_type="cell",  function=_n_comp(component),
                                units=self.ds.unit_system["number_density"],display_name=r'n_{%s}' % component)
                 self.add_field(("gas", "temperature_%s" % component), sampling_type="cell",  function=_T_comp(component),
                            units=self.ds.unit_system["temperature"],display_name=r'T_{%s}' % component)
+                self.add_field(("gas", "ratio_T%s_T" % component), sampling_type="cell",  function=_ratio_T_comp(component),
+                           units="",display_name=r'T_{%s}/T' % component)
+                self.add_field(("gas", "ratio_P%s_P" % component), sampling_type="cell",  function=_ratio_P_comp(component),
+                           units="",display_name=r'P_{%s}/P' % component)
+            self.add_field(("gas",'ratio_Te_Ti'),sampling_type="cell",function=_ratio_te_ti,
+                           units="",display_name=r'T_{e}/T_{i}')
 
     def create_magnetic_fields(self):
         #Calculate cell-centred magnetic fields from face-centred
