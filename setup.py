@@ -34,7 +34,7 @@ try:
 except pkg_resources.DistributionNotFound:
     pass  # yay!
 
-VERSION = "3.6.dev0"
+VERSION = "3.6.0"
 
 if os.path.exists('MANIFEST'):
     os.remove('MANIFEST')
@@ -369,7 +369,8 @@ setup(
                  "Programming Language :: Python :: 3.5",
                  "Topic :: Scientific/Engineering :: Astronomy",
                  "Topic :: Scientific/Engineering :: Physics",
-                 "Topic :: Scientific/Engineering :: Visualization"],
+                 "Topic :: Scientific/Engineering :: Visualization",
+                 "Framework :: Matplotlib"],
     keywords='astronomy astrophysics visualization ' +
     'amr adaptivemeshrefinement',
     entry_points={'console_scripts': [

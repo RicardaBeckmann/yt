@@ -504,6 +504,32 @@ def fake_octree_ds(prng=RandomState(0x1d3d3d3), refined=None, quantities=None,
                      unit_system=unit_system)
     return ds
 
+def add_noise_fields(ds):
+    """Add 4 classes of noise fields to a dataset"""
+    prng = RandomState(0x4d3d3d3)
+    def _binary_noise(field, data):
+        """random binary data"""
+        res = prng.random_integers(0, 1, data.size).astype("float64")
+        return res
+
+    def _positive_noise(field, data):
+        """random strictly positive data"""
+        return prng.random_sample(data.size) + 1e-16
+
+    def _negative_noise(field, data):
+        """random negative data"""
+        return - prng.random_sample(data.size)
+
+    def _even_noise(field, data):
+        """random data with mixed signs"""
+        return 2 * prng.random_sample(data.size) - 1
+
+    ds.add_field("noise0", _binary_noise, sampling_type="cell")
+    ds.add_field("noise1", _positive_noise, sampling_type="cell")
+    ds.add_field("noise2", _negative_noise, sampling_type="cell")
+    ds.add_field("noise3", _even_noise, sampling_type="cell")
+
+
 def expand_keywords(keywords, full=False):
     """
     expand_keywords is a means for testing all possible keyword
@@ -615,9 +641,15 @@ def requires_module(module):
     platform.
     """
     def ffalse(func):
-        return lambda: None
+        @functools.wraps(func)
+        def false_wrapper(*args, **kwargs):
+            return None
+        return false_wrapper
     def ftrue(func):
-        return func
+        @functools.wraps(func)
+        def true_wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return true_wrapper
     try:
         importlib.import_module(module)
     except ImportError:
@@ -628,9 +660,15 @@ def requires_module(module):
 def requires_file(req_file):
     path = ytcfg.get("yt", "test_data_dir")
     def ffalse(func):
-        return lambda: None
+        @functools.wraps(func)
+        def false_wrapper(*args, **kwargs):
+            return None
+        return false_wrapper
     def ftrue(func):
-        return func
+        @functools.wraps(func)
+        def true_wrapper(*args, **kwargs):
+            return func
+        return true_wrapper
     if os.path.exists(req_file):
         return ftrue
     else:
@@ -920,6 +958,7 @@ def check_results(func):
 
     """
     def compute_results(func):
+        @functools.wraps(func)
         def _func(*args, **kwargs):
             name = kwargs.pop("result_basename", func.__name__)
             rv = func(*args, **kwargs)
@@ -944,6 +983,7 @@ def check_results(func):
         return compute_results(func)
 
     def compare_results(func):
+        @functools.wraps(func)
         def _func(*args, **kwargs):
             name = kwargs.pop("result_basename", func.__name__)
             rv = func(*args, **kwargs)
